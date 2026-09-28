@@ -1,0 +1,2496 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Laboratorio Fotovoltaico · by Rubén Sbarsky</title>
+<style>
+    :root {
+      --bg-main: #0a0e17;
+      --bg-card: #121a2d;
+      --bg-card-subtle: #18233c;
+      --border-subtle: #223254;
+      --accent-sun: #f59e0b;
+      --accent-sun-glow: rgba(245, 158, 11, 0.4);
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-purple: #8b5cf6;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* HEADER COMPACTO MOBILE-FIRST */
+    header {
+      background: linear-gradient(180deg, #152037 0%, #0d1424 100%);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.75rem 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: radial-gradient(circle, #fbbf24 0%, #d97706 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 12px var(--accent-sun-glow);
+      flex-shrink: 0;
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-author {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.12);
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-top: 1px;
+    }
+
+    .quick-status-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 3px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* STEPPER PESTAÑAS (TOUCH 44px) */
+    .stepper {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.3rem;
+      background: rgba(10, 14, 23, 0.9);
+      padding: 0.25rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .step-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      min-height: 42px;
+      border-radius: 8px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .step-btn:active, .step-btn.active {
+      background: var(--accent-blue);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.45);
+    }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      font-size: 0.65rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.75rem 0.75rem 2rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    /* VISTAS */
+    .view-panel {
+      display: none;
+      flex-direction: column;
+      gap: 0.9rem;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .view-panel.active {
+      display: flex !important;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* BANNER PEDAGÓGICO COMPACTO */
+    .guidance-banner {
+      background: linear-gradient(135deg, rgba(26, 37, 62, 0.9) 0%, rgba(18, 26, 45, 0.95) 100%);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--accent-sun);
+      border-radius: 12px;
+      padding: 0.75rem 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .banner-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .guidance-banner h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .guidance-banner p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .banner-actions-mobile {
+      display: flex;
+      gap: 0.45rem;
+      margin-top: 0.2rem;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      min-height: 42px;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      touch-action: manipulation;
+      transition: background 0.15s, border-color 0.15s;
+      flex: 1;
+      text-decoration: none;
+    }
+
+    .action-btn:active {
+      background: var(--border-subtle);
+    }
+
+    .action-btn.primary {
+      background: linear-gradient(135deg, var(--accent-blue) 0%, #2563eb 100%);
+      border-color: #3b82f6;
+      color: white;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.35);
+    }
+
+    .action-btn.accent-glossary {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: rgba(6, 182, 212, 0.4);
+      color: #67e8f9;
+    }
+
+    /* LAYOUT DEL SIMULADOR */
+    .sim-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    @media (min-width: 900px) {
+      .sim-grid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        align-items: start;
+      }
+    }
+
+    .sim-stage-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .sim-toolbar {
+      padding: 0.55rem 0.75rem;
+      background: rgba(14, 21, 37, 0.95);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .toolbar-views {
+      display: flex;
+      background: rgba(8, 12, 20, 0.7);
+      border-radius: 7px;
+      padding: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      flex: 1;
+      max-width: 280px;
+    }
+
+    .mode-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.35rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      text-align: center;
+      white-space: nowrap;
+      touch-action: manipulation;
+    }
+
+    .mode-tab.active {
+      background: #1e293b;
+      color: var(--accent-cyan);
+    }
+
+    /* CONTENEDOR DEL CANVAS */
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      height: 310px;
+      background: radial-gradient(circle at 50% 12%, #14223d 0%, #070c17 85%);
+      overflow: hidden;
+      touch-action: pan-y;
+      cursor: crosshair;
+    }
+
+    @media (min-width: 600px) {
+      .canvas-container {
+        height: 380px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .canvas-container {
+        height: 460px;
+      }
+    }
+
+    canvas#simCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: pan-y;
+    }
+
+    /* TELEMETRÍA / HUD MÓVIL */
+    .hud-bar {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      right: 0.5rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.35rem;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .hud-chip {
+      background: rgba(10, 15, 26, 0.88);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 7px;
+      padding: 0.3rem 0.45rem;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+
+    .hud-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .hud-val {
+      font-size: 0.82rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .hud-sub-bar {
+      position: absolute;
+      bottom: 2rem;
+      left: 0.5rem;
+      right: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.35rem;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .hud-pill {
+      background: rgba(10, 15, 26, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-weight: 600;
+    }
+
+    .canvas-hint {
+      position: absolute;
+      bottom: 0.4rem;
+      left: 0.5rem;
+      right: 0.5rem;
+      text-align: center;
+      font-size: 0.68rem;
+      color: #cbd5e1;
+      background: rgba(11, 15, 25, 0.7);
+      padding: 2px 6px;
+      border-radius: 4px;
+      pointer-events: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* PANELES DE CONTROL TÁCTILES */
+    .controls-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .controls-nav-tabs {
+      display: flex;
+      gap: 0.3rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.45rem;
+    }
+
+    .ctrl-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ctrl-tab-btn.active {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .control-value {
+      color: var(--accent-sun);
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 28px;
+      background: transparent;
+      outline: none;
+      cursor: pointer;
+      touch-action: pan-x;
+      margin: 0;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #1e293d;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.7);
+      margin-top: -8px;
+      border: 2px solid #ffffff;
+      transition: transform 0.1s ease;
+    }
+
+    input[type=range]:active::-webkit-slider-thumb {
+      transform: scale(1.2);
+      background: #38bdf8;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.45rem;
+    }
+
+    .preset-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      min-height: 44px;
+      padding: 0.4rem 0.5rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.2;
+      touch-action: manipulation;
+      transition: all 0.15s;
+    }
+
+    .preset-btn:active {
+      background: var(--border-subtle);
+      color: var(--text-main);
+    }
+
+    .preset-btn.active {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.14);
+      color: #67e8f9;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
+    }
+
+    .components-section-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 0.2rem 0 0.5rem 0;
+    }
+
+    .components-row {
+      display: flex;
+      overflow-x: auto;
+      gap: 0.65rem;
+      padding-bottom: 0.5rem;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media (min-width: 768px) {
+      .components-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        overflow-x: visible;
+      }
+    }
+
+    .comp-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0.85rem;
+      cursor: pointer;
+      min-width: 230px;
+      max-width: 250px;
+      flex-shrink: 0;
+      scroll-snap-align: start;
+      touch-action: manipulation;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    @media (min-width: 768px) {
+      .comp-card {
+        min-width: unset;
+        max-width: unset;
+      }
+    }
+
+    .comp-card.active-comp {
+      border-color: var(--accent-cyan);
+      background: linear-gradient(145deg, #131f38 0%, #172749 100%);
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.2);
+    }
+
+    .comp-card-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      margin-bottom: 0.4rem;
+    }
+
+    .badge-photons { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .badge-silicon { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .badge-circuit { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .badge-load { background: rgba(139, 92, 246, 0.2); color: #c084fc; }
+
+    .comp-card h3 {
+      font-size: 0.88rem;
+      margin-bottom: 0.3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      line-height: 1.2;
+    }
+
+    .comp-card p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .explanation-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0.9rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .explanation-icon {
+      font-size: 1.8rem;
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .explanation-content h3 {
+      font-size: 0.92rem;
+      color: var(--accent-cyan);
+      margin-bottom: 0.3rem;
+      line-height: 1.25;
+    }
+
+    .explanation-content p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-bottom: 0.5rem;
+    }
+
+    .explanation-formula {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 0.4rem 0.65rem;
+      border-radius: 6px;
+      border-left: 3px solid var(--accent-blue);
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.75rem;
+      color: #93c5fd;
+      display: inline-block;
+      word-break: break-word;
+    }
+
+    .lab-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    @media (min-width: 768px) {
+      .lab-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .task-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .task-card.completed {
+      border-color: var(--accent-green);
+      background: linear-gradient(180deg, #132420 0%, #0d1716 100%);
+    }
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-status {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    .task-status.done {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+    }
+
+    .challenge-box {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.75rem;
+      border-radius: 8px;
+      border-left: 3px solid var(--accent-sun);
+      font-size: 0.82rem;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .quiz-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 1.1rem;
+      max-width: 700px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .quiz-progress {
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .quiz-progress-bar {
+      height: 100%;
+      width: 20%;
+      background: var(--accent-blue);
+      transition: width 0.25s ease;
+    }
+
+    .question-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+
+    .answers-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin-bottom: 1rem;
+    }
+
+    .answer-opt {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      min-height: 48px;
+      padding: 0.65rem 0.85rem;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 0.84rem;
+      text-align: left;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      touch-action: manipulation;
+      line-height: 1.35;
+    }
+
+    .answer-opt:active {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .answer-opt.correct {
+      border-color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.18);
+      color: #a7f3d0;
+    }
+
+    .answer-opt.wrong {
+      border-color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.18);
+      color: #fca5a5;
+    }
+
+    .feedback-box {
+      display: none;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      margin-bottom: 0.9rem;
+    }
+
+    .feedback-box.show {
+      display: block;
+    }
+
+    .feedback-box.correct {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #a7f3d0;
+    }
+
+    .feedback-box.wrong {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    /* ESTILOS ESPECÍFICOS DEL GLOSARIO */
+    .glossary-card {
+      border: 1px solid var(--border-subtle);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+      background: var(--bg-card);
+    }
+    .glossary-card:active {
+      transform: scale(0.99);
+      border-color: var(--accent-cyan);
+    }
+    .glossary-subheading {
+      color: #38bdf8;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 0.85rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      background: #090d16;
+    }
+
+    .legend-dots {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+</style>
+</head>
+<body>
+<!-- CABECERA ADAPTADA CON AUTORÍA DESTACADA -->
+<header>
+<div class="header-top">
+<div class="brand">
+<div class="brand-icon">
+<svg fill="none" height="20" stroke="#0a0e17" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="20">
+<circle cx="12" cy="12" r="5"></circle>
+<line x1="12" x2="12" y1="1" y2="3"></line>
+<line x1="12" x2="12" y1="21" y2="23"></line>
+<line x1="4.22" x2="5.64" y1="4.22" y2="5.64"></line>
+<line x1="18.36" x2="19.78" y1="18.36" y2="19.78"></line>
+<line x1="1" x2="3" y1="12" y2="12"></line>
+<line x1="21" x2="23" y1="12" y2="12"></line>
+<line x1="4.22" x2="5.64" y1="19.78" y2="18.36"></line>
+<line x1="18.36" x2="19.78" y1="5.64" y2="4.22"></line>
+</svg>
+</div>
+<div class="brand-text">
+<h1>Laboratorio Fotovoltaico</h1>
+<div class="brand-author">BY RUBÉN SBARSKY</div>
+</div>
+</div>
+<div class="quick-status-badge" id="quickSysStatus">
+<span style="display:inline-block; width:6px; height:6px; background:#10b981; border-radius:50%;"></span>
+<span>Autoconsumo Activo</span>
+</div>
+</div>
+<!-- PESTAÑAS TOUCH FRIENDLY (44px min) -->
+<nav aria-label="Navegación del Laboratorio" class="stepper">
+<button class="step-btn active" id="nav-btn-explore" onclick="switchTab('explore')">
+<span class="step-badge">1</span> Explorar
+</button>
+<button class="step-btn" id="nav-btn-lab" onclick="switchTab('lab')">
+<span class="step-badge">2</span> Retos
+</button>
+<button class="step-btn" id="nav-btn-quiz" onclick="switchTab('quiz')">
+<span class="step-badge">3</span> Quiz
+</button>
+<button class="step-btn" id="nav-btn-glossary" onclick="switchTab('glossary')">
+<span class="step-badge">4</span> Glosario
+</button>
+</nav>
+</header>
+<!-- CONTENIDO PRINCIPAL -->
+<main>
+<!-- BANNER PEDAGÓGICO COMPACTO -->
+<div class="guidance-banner">
+<div class="banner-header-line">
+<h2>
+<span id="bannerIcon">☀️</span>
+<span id="bannerTitle">Fase 1: Simulación en Vivo</span>
+</h2>
+<button class="action-btn" id="bannerPauseBtn" onclick="togglePause()" style="flex:0 0 auto; min-height:34px; padding:0.25rem 0.6rem; font-size:0.75rem;">
+<span id="pauseBtnIcon">⏸</span> <span id="pauseBtnText">Pausar</span>
+</button>
+</div>
+<p id="bannerDesc">
+Toca el cielo para lanzar fotones solares. Modifica la radiación, ángulo y consumo para ver cómo interactúan los paneles, la batería LiFePO4, el inversor y la red.
+</p>
+<div class="banner-actions-mobile">
+<button class="action-btn" id="bannerResetBtn" onclick="resetSimParams()">
+↺ Valores Estándar
+</button>
+<button class="action-btn accent-glossary" onclick="switchTab('glossary')">
+📖 Ver Glosario Completo
+</button>
+<button class="action-btn primary" id="bannerNextStepBtn" onclick="switchTab('lab')">
+Ir a Retos ➔
+</button>
+</div>
+</div>
+<!-- VISTA 1: EXPLORACIÓN -->
+<div class="view-panel active" id="view-explore">
+<div class="sim-grid">
+<!-- CANVAS CON CONTENEDOR FLUIDO Y HUD INTEGRADO -->
+<div class="sim-stage-card">
+<div class="sim-toolbar">
+<div class="toolbar-views">
+<button class="mode-tab active" id="btnModeComplete" onclick="setViewMode('all')">Sistema Completo</button>
+<button class="mode-tab" id="btnModeAtomic" onclick="setViewMode('atomic')">Corte Atómico P-N</button>
+</div>
+<button class="action-btn" onclick="resetSimParams()" style="min-height:30px; padding:0.2rem 0.5rem; font-size:0.72rem; flex:0 0 auto;">
+↺ Reset
+</button>
+</div>
+<div class="canvas-container" id="canvasContainer">
+<canvas id="simCanvas"></canvas>
+<!-- HUD SUPERIOR EN 3 COLUMNAS -->
+<div class="hud-bar">
+<div class="hud-chip">
+<span class="hud-label">☀️ SOLAR (DC)</span>
+<span class="hud-val" id="teleSolarDC" style="color:#fbbf24;">2850 W</span>
+</div>
+<div class="hud-chip">
+<span class="hud-label">🔋 BATERÍA (SOC)</span>
+<span class="hud-val" id="teleBatterySoc" style="color:#34d399;">68%</span>
+</div>
+<div class="hud-chip">
+<span class="hud-label">🏠 CONSUMO</span>
+<span class="hud-val" id="teleHouseLoad" style="color:#f87171;">1800 W</span>
+</div>
+</div>
+<!-- HUD SECUNDARIO INFERIOR -->
+<div class="hud-sub-bar">
+<div class="hud-pill" style="color:#a78bfa;">
+🔄 Inversor AC: <span id="teleInverterAC">1632 W (97%)</span>
+</div>
+<div class="hud-pill" style="color:#67e8f9;">
+🌐 Red: <span id="teleGridBalance">+68 W (Imp)</span>
+</div>
+</div>
+<div class="canvas-hint">
+👆 Toca el cielo para fotones · Desliza abajo para ajustar variables
+</div>
+</div>
+</div>
+<!-- CONTROLES ERGONÓMICOS TÁCTILES -->
+<div class="controls-card">
+<div class="controls-nav-tabs">
+<button class="ctrl-tab-btn active" id="tabCtrlGen" onclick="switchControlSubTab('gen')">⚙️ Variables</button>
+<button class="ctrl-tab-btn" id="tabCtrlModes" onclick="switchControlSubTab('modes')">⚡ Modos y Red</button>
+<button class="ctrl-tab-btn" id="tabCtrlPresets" onclick="switchControlSubTab('presets')">🎯 Escenarios</button>
+</div>
+<!-- SUB-PESTAÑA 1: SLIDERS PRINCIPALES -->
+<div id="subTabContentGen" style="display:flex; flex-direction:column; gap:0.65rem;">
+<div class="control-item">
+<div class="control-label">
+<span>☀️ Radiación Solar</span>
+<span class="control-value" id="valIrradiance">850 W/m²</span>
+</div>
+<input id="sliderIrradiance" max="1200" min="0" oninput="updateParams()" step="25" type="range" value="850"/>
+</div>
+<div class="control-item">
+<div class="control-label">
+<span>📐 Ángulo del Sol</span>
+<span class="control-value" id="valAngle">90° (Cenital)</span>
+</div>
+<input id="sliderAngle" max="165" min="15" oninput="updateParams()" step="1" type="range" value="90"/>
+</div>
+<div class="control-item">
+<div class="control-label">
+<span>☁️ Nubosidad / Sombra</span>
+<span class="control-value" id="valClouds">0%</span>
+</div>
+<input id="sliderClouds" max="100" min="0" oninput="updateParams()" step="5" type="range" value="0"/>
+</div>
+<div class="control-item">
+<div class="control-label">
+<span>🏠 Consumo del Hogar</span>
+<span class="control-value" id="valHouseLoad" style="color:#f87171;">1800 W</span>
+</div>
+<input id="sliderHouseLoad" max="5000" min="100" oninput="updateParams()" step="50" type="range" value="1800"/>
+</div>
+<div class="control-item">
+<div class="control-label">
+<span>🔋 Batería (SOC)</span>
+<span class="control-value" id="valBatterySoc" style="color:#34d399;">68%</span>
+</div>
+<input id="sliderBatterySoc" max="100" min="5" oninput="updateParams()" step="1" type="range" value="68"/>
+</div>
+</div>
+<!-- SUB-PESTAÑA 2: MODOS INVERSOR Y RED -->
+<div id="subTabContentModes" style="display:none; flex-direction:column; gap:0.6rem;">
+<span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Configuración de Conexión:</span>
+<div class="preset-grid">
+<button class="preset-btn active" id="btnModeGrid" onclick="setInverterMode('grid')">🌐 Red (On-Grid)</button>
+<button class="preset-btn" id="btnModeOffGrid" onclick="setInverterMode('offgrid')">🏝️ Aislado (Off-Grid)</button>
+<button class="preset-btn" id="btnModeNight" onclick="setInverterMode('night')">🌙 Noche (Batería)</button>
+<button class="preset-btn" id="btnModeSurplus" onclick="setInverterMode('surplus')">⚡ Excedente a Red</button>
+</div>
+<div style="font-size:0.74rem; color:var(--text-dim); line-height:1.35; padding:0.4rem; background:rgba(0,0,0,0.25); border-radius:6px;">
+💡 <strong>On-Grid:</strong> Inyecta excedente o importa déficit. <br/>
+🏝️ <strong>Off-Grid:</strong> Desconecta la red y depende únicamente de paneles y batería.
+</div>
+</div>
+<!-- SUB-PESTAÑA 3: ESCENARIOS RÁPIDOS -->
+<div id="subTabContentPresets" style="display:none; flex-direction:column; gap:0.6rem;">
+<span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Escenarios Clave:</span>
+<div class="preset-grid">
+<button class="preset-btn" onclick="applyPreset('noon')">☀️ Mediodía (Pleno Sol)</button>
+<button class="preset-btn" onclick="applyPreset('overcast')">☁️ Día Nublado</button>
+<button class="preset-btn" onclick="applyPreset('sunset')">🌅 Atardecer</button>
+<button class="preset-btn" onclick="applyPreset('peakLoad')">🍳 Pico de Consumo (4kW)</button>
+</div>
+</div>
+</div>
+</div>
+<!-- CAROUSEL DE COMPONENTES INTERACTIVOS -->
+<div>
+<div class="components-section-title">
+<span>🧩</span> Componentes del Sistema (Toca para inspeccionar)
+</div>
+<div class="components-row">
+<div class="comp-card active-comp" id="card-pn" onclick="selectComponent('pn')">
+<span class="comp-card-badge badge-silicon">Generación DC</span>
+<h3>Paneles Solares <span>☀️</span></h3>
+<p>Generan energía eléctrica en Corriente Continua (DC) gracias a la unión P-N excitada por fotones solares.</p>
+</div>
+<div class="comp-card" id="card-battery" onclick="selectComponent('battery')">
+<span class="comp-card-badge badge-load">Almacenamiento</span>
+<h3>Batería LiFePO4 <span>🔋</span></h3>
+<p>Acumula excedentes diurnos. El BMS integrado supervisa el SOC%, temperatura y previene sobrecargas.</p>
+</div>
+<div class="comp-card" id="card-inverter" onclick="selectComponent('inverter')">
+<span class="comp-card-badge badge-circuit">Conversión DC/AC</span>
+<h3>Inversor Híbrido <span>🔄</span></h3>
+<p>Transforma corriente continua en corriente alterna senoidal pura (230V/120V) con algoritmo MPPT y ~97% de eficiencia.</p>
+</div>
+<div class="comp-card" id="card-grid" onclick="selectComponent('grid')">
+<span class="comp-card-badge badge-photons">Consumo &amp; Red</span>
+<h3>Hogar y Red (Grid) <span>🏠</span></h3>
+<p>Alimenta electrodomésticos en AC y permite inyección bidireccional o respaldo según la configuración.</p>
+</div>
+</div>
+</div>
+<!-- DETALLE TÉCNICO EXPLICATIVO -->
+<div class="explanation-panel" id="deepDivePanel">
+<div class="explanation-icon" id="detailIcon">🔬</div>
+<div class="explanation-content">
+<h3 id="detailTitle">¿Cómo se produce el Efecto Fotovoltaico?</h3>
+<p id="detailDesc">
+1. <strong>Absorción:</strong> La luz solar llega en forma de fotones.<br/>
+2. <strong>Liberación:</strong> Al chocar contra la unión P-N, los fotones donan su energía a los electrones ligados.<br/>
+3. <strong>Separación por Campo Eléctrico:</strong> El campo interno empuja electrones a la capa N y huecos a la capa P.<br/>
+4. <strong>Corriente Eléctrica:</strong> Los electrones viajan por el circuito exterior hacia la carga o el inversor.
+</p>
+<div class="explanation-formula" id="detailFormula">Potencia (Watts) = Voltaje (V) × Corriente (I)</div>
+</div>
+</div>
+</div>
+<!-- VISTA 2: RETOS Y EXPERIMENTOS -->
+<div class="view-panel" id="view-lab">
+<div style="background:var(--bg-card); padding:0.9rem; border-radius:12px; border:1px solid var(--border-subtle);">
+<h2 style="font-size:1.05rem; margin-bottom:0.25rem;">🧪 Laboratorio de Descubrimiento Activo</h2>
+<p style="color:var(--text-muted); font-size:0.8rem; line-height:1.4;">
+Experimenta manipulando las variables para cumplir cada reto y desbloquear el concepto físico subyacente.
+</p>
+</div>
+<div class="lab-container">
+<!-- RETO 1 -->
+<div class="task-card" id="task1">
+<div class="task-header">
+<span style="font-weight:700; color:var(--accent-sun); font-size:0.85rem;">Experimento #1</span>
+<span class="task-status" id="task1-badge">Pendiente</span>
+</div>
+<h3 style="font-size:0.95rem;">Gestión de Excedentes Solares</h3>
+<div class="challenge-box">
+🎯 <strong>Misión:</strong> Con sol alto (&gt;2500W DC), carga la batería al 100% con bajo consumo en casa. ¿Hacia dónde fluye el sobrante?
+</div>
+<button class="action-btn" onclick="testSurplusExperiment()">
+⚡ Probar Batería al 100% y Verter a Red
+</button>
+<div id="task1-result" style="display:none; font-size:0.8rem; background:rgba(6,182,212,0.12); border-left:3px solid var(--accent-cyan); padding:0.6rem; border-radius:6px; color:#cffafe;">
+<strong>¡Descubrimiento!</strong> Al llenarse la batería, el inversor desvía automáticamente el exceso a la red eléctrica pública (balance neto).
+</div>
+</div>
+<!-- RETO 2 -->
+<div class="task-card" id="task2">
+<div class="task-header">
+<span style="font-weight:700; color:var(--accent-cyan); font-size:0.85rem;">Experimento #2</span>
+<span class="task-status" id="task2-badge">Pendiente</span>
+</div>
+<h3 style="font-size:0.95rem;">Autonomía Nocturna (Off-Grid)</h3>
+<div class="challenge-box">
+🎯 <strong>Misión:</strong> Activa el <strong>Modo Noche (0W solar)</strong> en modo Aislado (Off-Grid) para verificar si la batería abastece al 100% el hogar.
+</div>
+<button class="action-btn" onclick="testNightExperiment()">
+🌙 Activar Modo Noche Off-Grid
+</button>
+<div id="task2-result" style="display:none; font-size:0.8rem; background:rgba(6,182,212,0.12); border-left:3px solid var(--accent-cyan); padding:0.6rem; border-radius:6px; color:#cffafe;">
+<strong>¡Comprobado!</strong> Sin sol, la batería invierte el flujo entregando DC al inversor, que genera 230V/120V AC para alimentar las cargas sin cortes.
+</div>
+</div>
+<!-- RETO 3 -->
+<div class="task-card" id="task3">
+<div class="task-header">
+<span style="font-weight:700; color:var(--accent-purple); font-size:0.85rem;">Experimento #3</span>
+<span class="task-status" id="task3-badge">Pendiente</span>
+</div>
+<h3 style="font-size:0.95rem;">Eficiencia de Conversión DC / AC</h3>
+<div class="challenge-box">
+🎯 <strong>Misión:</strong> Compara la potencia DC producida frente a la AC entregada por el inversor. ¿Qué ocurre con la diferencia?
+</div>
+<button class="action-btn" onclick="testInverterEfficiency()">
+🔄 Medir Pérdida Térmica en Inversor
+</button>
+<div id="task3-result" style="display:none; font-size:0.8rem; background:rgba(6,182,212,0.12); border-left:3px solid var(--accent-cyan); padding:0.6rem; border-radius:6px; color:#cffafe;">
+<strong>¡Exacto!</strong> Un 3% a 4% se pierde en forma de calor en los transistores de conmutación (IGBT/MOSFET).
+</div>
+</div>
+<!-- RETO 4 -->
+<div class="task-card" id="task4">
+<div class="task-header">
+<span style="font-weight:700; color:var(--accent-green); font-size:0.85rem;">Experimento #4</span>
+<span class="task-status" id="task4-badge">Pendiente</span>
+</div>
+<h3 style="font-size:0.95rem;">Autoconsumo Total en Pico (4.5 kW)</h3>
+<div class="challenge-box">
+🎯 <strong>Misión:</strong> Simula una alta demanda doméstica y haz que paneles y batería sumen potencia al unísono para no comprar nada a la red.
+</div>
+<button class="action-btn" onclick="testPeakZeroImport()">
+🍳 Simular Autoconsumo Total
+</button>
+<div id="task4-result" style="display:none; font-size:0.8rem; background:rgba(16,185,129,0.12); border-left:3px solid var(--accent-green); padding:0.6rem; border-radius:6px; color:#a7f3d0;">
+<strong>¡Cero Importación!</strong> El sistema combina 3000W solares + 1500W de batería para cubrir los 4500W del hogar de forma 100% autosuficiente.
+</div>
+</div>
+</div>
+<button class="action-btn primary" onclick="switchTab('quiz')" style="margin-top:0.5rem; width:100%; min-height:46px; font-size:0.9rem;">
+¿Listo? Comprobar con el Quiz ➔
+</button>
+</div>
+<!-- VISTA 3: QUIZ DE COMPROBACIÓN -->
+<div class="view-panel" id="view-quiz">
+<div class="quiz-card" id="quizContainer">
+<div class="quiz-progress">
+<div class="quiz-progress-bar" id="quizProgressBar"></div>
+</div>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+<span id="quizCounter" style="font-size:0.74rem; font-weight:700; color:var(--accent-blue); text-transform:uppercase;">Pregunta 1 de 5</span>
+<span style="font-size:0.72rem; color:var(--text-muted);">Evaluación Interactiva</span>
+</div>
+<h2 class="question-title" id="quizQuestion">
+¿Cuál es la función del campo eléctrico dentro de la unión P-N de la celda solar?
+</h2>
+<div class="answers-list" id="quizOptions">
+<!-- Inyectado por JS -->
+</div>
+<div class="feedback-box" id="quizFeedback"></div>
+<button class="action-btn primary" id="btnNextQuiz" onclick="nextQuestion()" style="display:none; width:100%; min-height:44px; margin-top:0.4rem;">
+Siguiente Pregunta ➔
+</button>
+</div>
+</div>
+<!-- VISTA 4: GLOSARIO TÉCNICO EN PALABRAS SIMPLES -->
+<div class="view-panel" id="view-glossary">
+<!-- ENCABEZADO Y CONTROLES DEL GLOSARIO -->
+<div style="background:var(--bg-card); padding:0.9rem; border-radius:14px; border:1px solid var(--border-subtle); display:flex; flex-direction:column; gap:0.75rem; box-shadow:0 4px 18px rgba(0,0,0,0.3);">
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.4rem;">
+<div>
+<h2 style="font-size:1.05rem; display:flex; align-items:center; gap:0.4rem; color:#fff;">
+<span>📖</span> Glosario Técnico en Palabras Simples
+</h2>
+<p style="color:var(--text-muted); font-size:0.8rem; margin-top:2px;">
+15 conceptos esenciales explicados sin jerga para dominar la energía solar.
+</p>
+</div>
+<span id="glossaryCountBadge" style="font-size:0.7rem; font-weight:700; color:var(--accent-cyan); background:rgba(6,182,212,0.12); padding:3px 10px; border-radius:12px; border:1px solid rgba(6,182,212,0.3);">
+15 Términos
+</span>
+</div>
+<!-- BUSCADOR EN TIEMPO REAL -->
+<div style="position:relative; width:100%;">
+<input id="glossarySearch" oninput="filterGlossary()" placeholder="🔍 Buscar término (ej. fotón, MPPT, batería)..." style="width:100%; min-height:44px; background:rgba(10,14,23,0.85); border:1px solid #334155; border-radius:9px; padding:0.5rem 0.85rem; color:#fff; font-size:0.85rem; outline:none; box-sizing:border-box;" type="text"/>
+</div>
+<!-- PÍLDORAS DE FILTRADO -->
+<div style="display:flex; gap:0.35rem; overflow-x:auto; padding-bottom:3px; -webkit-overflow-scrolling:touch;">
+<button class="preset-btn active" id="filter-all" onclick="setGlossaryCat('all')" style="min-height:34px; padding:0.25rem 0.65rem; font-size:0.75rem; white-space:nowrap; flex:0 0 auto;">Todos (15)</button>
+<button class="preset-btn" id="filter-light" onclick="setGlossaryCat('light')" style="min-height:34px; padding:0.25rem 0.65rem; font-size:0.75rem; white-space:nowrap; flex:0 0 auto;">☀️ Luz y Física</button>
+<button class="preset-btn" id="filter-equip" onclick="setGlossaryCat('equip')" style="min-height:34px; padding:0.25rem 0.65rem; font-size:0.75rem; white-space:nowrap; flex:0 0 auto;">⚙️ Equipos</button>
+<button class="preset-btn" id="filter-power" onclick="setGlossaryCat('power')" style="min-height:34px; padding:0.25rem 0.65rem; font-size:0.75rem; white-space:nowrap; flex:0 0 auto;">⚡ Electricidad y Red</button>
+</div>
+</div>
+<!-- LISTA DE FICHAS TÉCNICAS COMPLETAS -->
+<div class="sim-grid" id="glossaryCardsContainer" style="display:flex; flex-direction:column; gap:0.75rem;">
+<!-- 1. FOTÓN -->
+<div class="task-card glossary-card" data-cat="light">
+<div>
+<div class="glossary-subheading">El mensajero de luz</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>1. Fotón</span> <span>✨</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+Partícula elemental o paquete diminuto de radiación electromagnética que viaja desde el Sol hasta impactar en el silicio.
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-sun);">
+💡 <strong>En palabras simples:</strong> Imagina una lluvia incesante de pelotas de ping-pong súper energéticas disparadas por el Sol que despiertan a los electrones dormidos al golpear la placa.
+</div>
+</div>
+<!-- 2. CELDA Y PANEL FOTOVOLTAICO -->
+<div class="task-card glossary-card" data-cat="equip">
+<div>
+<div class="glossary-subheading">La trampa de sol</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>2. Celda y Panel Fotovoltaico</span> <span>☀️</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+Conjunto de láminas semiconductoras conectadas en serie y paralelo que capturan los fotones y producen Corriente Continua (DC).
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-blue);">
+💡 <strong>En palabras simples:</strong> Es una especie de gran red de pesca montada en el tejado que en lugar de peces atrapa rayos solares para fabricar electricidad al vuelo.
+</div>
+</div>
+<!-- 3. UNIÓN P-N Y SILICIO SEMICONDUCTOR -->
+<div class="task-card glossary-card" data-cat="light">
+<div>
+<div class="glossary-subheading">El tobogán eléctrico invisible</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>3. Unión P-N y Silicio Semiconductor</span> <span>🔬</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+Frontera física entre dos capas de silicio dopado (P con huecos y N con electrones extra) que crea un campo eléctrico interno permanente.
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-cyan);">
+💡 <strong>En palabras simples:</strong> Un tobogán de un único sentido. Cuando el fotón sacude un electrón, este cae rodando por la pendiente y no puede volver atrás salvo dando toda la vuelta por el cable de tu casa.
+</div>
+</div>
+<!-- 4. ELECTRONES Y CORRIENTE ELÉCTRICA -->
+<div class="task-card glossary-card" data-cat="power">
+<div>
+<div class="glossary-subheading">Los soldaditos que empujan el circuito</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>4. Electrones y Corriente Eléctrica</span> <span>⚡</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+Portadores de carga eléctrica negativa que, al circular de forma ordenada por un material conductor (cable), generan energía utilizable.
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-purple);">
+💡 <strong>En palabras simples:</strong> Como millones de personitas marchando hombro con hombro empujando el cable con fuerza constante para hacer girar la lavadora o iluminar la bombilla.
+</div>
+</div>
+<!-- 5. CORRIENTE CONTINUA (DC) VS CORRIENTE ALTERNA (AC) -->
+<div class="task-card glossary-card" data-cat="power">
+<div>
+<div class="glossary-subheading">La manguera directa vs el vaivén del enchufe</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>5. Corriente Continua (DC) vs Alterna (AC)</span> <span>🔄</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+DC circula siempre en un único sentido lineal (paneles y baterías). AC oscila de sentido 50 o 60 veces por segundo (electrodomésticos y red general).
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-green);">
+💡 <strong>En palabras simples:</strong> La DC es como el agua saliendo sin cesar por una manguera en una dirección. La AC es como el vaivén de un serrucho cortando leña a gran velocidad adelante y atrás.
+</div>
+</div>
+<!-- 6. INVERSOR SOLAR INTELIGENTE -->
+<div class="task-card glossary-card" data-cat="equip">
+<div>
+<div class="glossary-subheading">El traductor universal de corriente</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>6. Inversor Solar Inteligente (DC a AC)</span> <span>🔄</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+Dispositivo electrónico central que convierte los voltios continuos (DC) de las placas y batería en onda senoidal alterna (230V/120V AC).
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-purple);">
+💡 <strong>En palabras simples:</strong> Un intérprete diplomático en tiempo real que traduce el idioma de las placas (DC) al dialecto exacto que habla el televisor o la nevera (AC).
+</div>
+</div>
+<!-- 7. ALGORITMO MPPT -->
+<div class="task-card glossary-card" data-cat="equip">
+<div>
+<div class="glossary-subheading">El cambio de marchas automático del inversor</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>7. Algoritmo MPPT (Máxima Potencia)</span> <span>🎯</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+Sistema computarizado del inversor que ajusta continuamente voltaje y corriente para exprimir hasta el último vatio que el sol ofrece.
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-cyan);">
+💡 <strong>En palabras simples:</strong> Como los cambios automáticos de una bicicleta moderna: en cada bache, sombra o ráfaga de sol elige la marcha exacta para que pedalees con la máxima eficiencia sin cansarte.
+</div>
+</div>
+<!-- 8. BATERÍA LIFEPO4 -->
+<div class="task-card glossary-card" data-cat="equip">
+<div>
+<div class="glossary-subheading">El almacén seguro de litio-ferrofosfato</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>8. Batería LiFePO4 (Litio Ferrofosfato)</span> <span>🔋</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+Tecnología electroquímica de acumulación que guarda el exceso de energía solar del día con alta resistencia térmica y más de 4000 ciclos de vida.
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-green);">
+💡 <strong>En palabras simples:</strong> Una cisterna o depósito de agua blindado contra incendios que almacena la lluvia del mediodía para que disfrutes de duchas calientes a medianoche.
+</div>
+</div>
+<!-- 9. SOC (ESTADO DE CARGA) -->
+<div class="task-card glossary-card" data-cat="power">
+<div>
+<div class="glossary-subheading">El indicador de nivel de tanque</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>9. SOC - State of Charge (%)</span> <span>📊</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+Porcentaje exacto de energía remanente en la batería en relación a su capacidad nominal máxima total.
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-cyan);">
+💡 <strong>En palabras simples:</strong> El icono de la batería de tu smartphone que te dice si te queda 90% para todo el día o si estás en 15% y debes entrar en modo ahorro.
+</div>
+</div>
+<!-- 10. BMS (SISTEMA DE GESTIÓN DE BATERÍA) -->
+<div class="task-card glossary-card" data-cat="equip">
+<div>
+<div class="glossary-subheading">El guardián electrónico de seguridad</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>10. BMS (Battery Management System)</span> <span>🛡️</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+Microordenador que monitoriza voltaje de cada celda, corriente de descarga y temperatura interna para evitar accidentes o degradación prematura.
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-red);">
+💡 <strong>En palabras simples:</strong> Un ángel de la guarda y médico de guardia 24/7 que corta la corriente de inmediato si detecta fiebre, sobreesfuerzo o si alguna celda se queda rezagada.
+</div>
+</div>
+<!-- 11. RADIACIÓN SOLAR (W/m²) -->
+<div class="task-card glossary-card" data-cat="light">
+<div>
+<div class="glossary-subheading">La fuerza y brillo del sol</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>11. Radiación Solar (W/m²)</span> <span>☀️</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+Medida de potencia lumínica recibida por cada metro cuadrado de superficie. A pleno sol de mediodía ronda los 1000 W/m².
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-sun);">
+💡 <strong>En palabras simples:</strong> El caudal de una regadera cósmica: a mediodía despejado es un chorro a tope que llena baldes en segundos; con nubes densas se reduce a una llovizna fina.
+</div>
+</div>
+<!-- 12. VATIO (W) Y KILOVATIO (kW) -->
+<div class="task-card glossary-card" data-cat="power">
+<div>
+<div class="glossary-subheading">El velocímetro de la energía eléctrica</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>12. Vatio (W) y Kilovatio (kW)</span> <span>⏱️</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+Unidad de potencia que representa la tasa instantánea a la que se genera o gasta energía (1 Kilovatio equivale a 1.000 Vatios).
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-purple);">
+💡 <strong>En palabras simples:</strong> El velocímetro del coche: encender un foco LED es rodar despacio a 10 km/h (10W), mientras que encender el horno es correr a 2.500 km/h (2500W).
+</div>
+</div>
+<!-- 13. ÁNGULO CENITAL E INCLINACIÓN -->
+<div class="task-card glossary-card" data-cat="light">
+<div>
+<div class="glossary-subheading">El ángulo de tiro al blanco solar</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>13. Ángulo Cenital e Inclinación</span> <span>📐</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+Inclinación geométrica con la que los rayos impactan la placa; cuanto más cerca de los 90° perpendiculares, mayor es la generación eléctrica.
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-sun);">
+💡 <strong>En palabras simples:</strong> Alumbrar una pared de frente con una linterna crea un redondel concentrado y brillante. Si la inclinas de refilón, la luz se desparrama y pierde intensidad.
+</div>
+</div>
+<!-- 14. SISTEMA ON-GRID VS OFF-GRID -->
+<div class="task-card glossary-card" data-cat="power">
+<div>
+<div class="glossary-subheading">Conectado a la red vs 100% independiente</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>14. On-Grid vs Off-Grid</span> <span>🌐🏝️</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+On-Grid trabaja sincronizado con la red pública para apoyarse en ella. Off-Grid opera totalmente aislado dependiendo únicamente de sus placas y baterías.
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-cyan);">
+💡 <strong>En palabras simples:</strong> On-Grid es tener huerto en casa pero estar al lado del supermercado por si te falta fruta. Off-Grid es vivir en una isla solitaria viviendo solo de tu cosecha.
+</div>
+</div>
+<!-- 15. EXCEDENTES E INYECCIÓN A LA RED -->
+<div class="task-card glossary-card" data-cat="power">
+<div>
+<div class="glossary-subheading">Energía sobrante exportada a la calle</div>
+<h3 style="font-size:1rem; margin-top:0.2rem; display:flex; justify-content:space-between; align-items:center;">
+<span>15. Excedentes e Inyección a la Red</span> <span>💰</span>
+</h3>
+</div>
+<p style="font-size:0.83rem; color:var(--text-main); font-weight:600; line-height:1.4;">
+KWh limpios generados por las placas que no se consumen ni caben en la batería y se vierten a la red general para compensación en factura.
+</p>
+<div class="challenge-box" style="border-left-color:var(--accent-green);">
+💡 <strong>En palabras simples:</strong> Tener un limonero que produce más limones de los que puedes comer y llevárselos a la verdulería del vecindario para que te descuenten dinero a fin de mes.
+</div>
+</div>
+</div>
+<!-- BANNER DE RETORNO RÁPIDO A SIMULACIÓN -->
+<div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:12px; padding:0.85rem; text-align:center; display:flex; flex-direction:column; gap:0.5rem; margin-top:0.3rem;">
+<span style="font-size:0.82rem; color:var(--text-muted);">¿Quieres poner a prueba estos conceptos con controles en tiempo real?</span>
+<div style="display:flex; gap:0.4rem;">
+<button class="action-btn primary" onclick="switchTab('explore')" style="font-size:0.85rem;">
+☀️ Ir a la Simulación
+</button>
+<button class="action-btn" onclick="switchTab('quiz')" style="font-size:0.85rem;">
+📝 Ir al Quiz
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- PIE DE PÁGINA OPTIMIZADO -->
+<footer>
+<div class="legend-dots">
+<div class="legend-item"><span class="dot" style="background:#fbbf24;"></span><span>Fotones</span></div>
+<div class="legend-item"><span class="dot" style="background:#38bdf8;"></span><span>Flujo DC</span></div>
+<div class="legend-item"><span class="dot" style="background:#a855f7;"></span><span>Flujo AC Senoidal</span></div>
+<div class="legend-item"><span class="dot" style="background:#34d399;"></span><span>Batería LiFePO4</span></div>
+</div>
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.4rem;">
+<span style="color:#38bdf8; font-weight:700;">Rubén Sbarsky · Visual Interactive Lab</span>
+<span>Optimizador Móvil Galaxy A02 &amp; HD+</span>
+</div>
+</footer>
+<!-- LÓGICA COMPLETA DE SIMULACIÓN Y PEDAGOGÍA -->
+<script>
+    /* ========================================================
+       ESTADO GLOBAL DEL SISTEMA
+       ======================================================== */
+    const state = {
+      // Parámetros físicos
+      irradiance: 850,
+      angle: 90,
+      clouds: 0,
+      houseLoad: 1800,
+      batterySoc: 68,
+      inverterMode: 'grid', // 'grid', 'offgrid', 'night', 'surplus'
+      viewMode: 'all',       // 'all' (sistema) o 'atomic'
+      isPaused: false,
+
+      // Telemetría calculada
+      solarDC: 2850,
+      batteryFlow: 1050,     // Positivo = cargando, Negativo = descargando
+      inverterAC: 1746,
+      gridBalance: 54,       // Positivo = importa, Negativo = exporta
+
+      // Partículas simuladas
+      photons: [],
+      dcParticles: [],
+      acWaves: [],
+
+      // Retos
+      tasks: { t1: false, t2: false, t3: false, t4: false },
+
+      // Quiz
+      quizCurrentIndex: 0,
+      quizScore: 0,
+      quizAnswered: false,
+
+      // Glosario Filtro
+      glossaryCategory: 'all',
+
+      // Rendimiento móvil (detección Galaxy A02 / pantallas reducidas)
+      isMobile: window.innerWidth < 768,
+      maxPhotons: window.innerWidth < 768 ? 40 : 120
+    };
+
+    /* ========================================================
+       CANVAS RESPONSIVE & RENDIMIENTO AJUSTADO
+       ======================================================== */
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = 0;
+    let height = 0;
+
+    function resizeCanvas() {
+      const container = document.getElementById('canvasContainer');
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      width = rect.width;
+      height = rect.height;
+
+      state.isMobile = window.innerWidth < 768;
+      state.maxPhotons = state.isMobile ? 40 : 120;
+      const dpr = Math.min(window.devicePixelRatio || 1, state.isMobile ? 1.5 : 2);
+
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
+
+    /* ========================================================
+       MODELO ENERGÉTICO INTEGRAL
+       ======================================================== */
+    function recalculatePhysics() {
+      const rad = (state.angle * Math.PI) / 180;
+      const angleEff = Math.max(0.05, Math.sin(rad));
+      const cloudEff = Math.max(0.05, 1 - (state.clouds / 100) * 0.92);
+
+      const effectiveLight = state.irradiance * angleEff * cloudEff;
+      state.solarDC = Math.round((effectiveLight / 1000) * 3350);
+
+      if (state.inverterMode === 'night') {
+        state.solarDC = 0;
+      }
+
+      const efficiencyInverter = 0.97;
+
+      if (state.inverterMode === 'offgrid') {
+        state.gridBalance = 0;
+        const requiredDC = Math.round(state.houseLoad / efficiencyInverter);
+        const diffDC = state.solarDC - requiredDC;
+
+        if (diffDC >= 0) {
+          state.batteryFlow = Math.min(2500, diffDC);
+          state.inverterAC = state.houseLoad;
+        } else {
+          const needFromBat = Math.abs(diffDC);
+          state.batteryFlow = -needFromBat;
+          state.inverterAC = state.houseLoad;
+        }
+      } else {
+        const requiredDC = Math.round(state.houseLoad / efficiencyInverter);
+        const solarSurplus = state.solarDC - requiredDC;
+
+        if (solarSurplus >= 0) {
+          if (state.batterySoc < 98 && state.inverterMode !== 'surplus') {
+            const chargePower = Math.min(2200, solarSurplus);
+            state.batteryFlow = chargePower;
+            const extraSurplus = solarSurplus - chargePower;
+            state.inverterAC = state.houseLoad + Math.round(extraSurplus * efficiencyInverter);
+            state.gridBalance = -Math.round(extraSurplus * efficiencyInverter);
+          } else {
+            state.batteryFlow = 0;
+            state.inverterAC = Math.round(state.solarDC * efficiencyInverter);
+            state.gridBalance = -(state.inverterAC - state.houseLoad);
+          }
+        } else {
+          const deficitDC = Math.abs(solarSurplus);
+          if (state.batterySoc > 15) {
+            const batDischarge = Math.min(2000, deficitDC);
+            state.batteryFlow = -batDischarge;
+            state.inverterAC = Math.round((state.solarDC + batDischarge) * efficiencyInverter);
+            state.gridBalance = Math.max(0, state.houseLoad - state.inverterAC);
+          } else {
+            state.batteryFlow = 0;
+            state.inverterAC = Math.round(state.solarDC * efficiencyInverter);
+            state.gridBalance = state.houseLoad - state.inverterAC;
+          }
+        }
+      }
+
+      // Actualizar Telemetría
+      const elSolar = document.getElementById('teleSolarDC');
+      const elBat = document.getElementById('teleBatterySoc');
+      const elLoad = document.getElementById('teleHouseLoad');
+      const elInv = document.getElementById('teleInverterAC');
+      const elGrid = document.getElementById('teleGridBalance');
+
+      if (elSolar) elSolar.innerText = `${state.solarDC} W`;
+      if (elBat) elBat.innerText = `${state.batterySoc}%`;
+      if (elLoad) elLoad.innerText = `${state.houseLoad} W`;
+      if (elInv) elInv.innerText = `${state.inverterAC} W (97%)`;
+
+      const gridText = state.gridBalance <= 0 
+        ? `${Math.abs(state.gridBalance)} W (Exporta)` 
+        : `+${state.gridBalance} W (Importa)`;
+      if (elGrid) elGrid.innerText = gridText;
+
+      const statusPill = document.getElementById('quickSysStatus');
+      if (statusPill) {
+        if (state.gridBalance < -50) {
+          statusPill.innerHTML = '<span style="display:inline-block; width:6px; height:6px; background:#38bdf8; border-radius:50%;"></span> Inyectando a Red';
+        } else if (state.gridBalance > 100) {
+          statusPill.innerHTML = '<span style="display:inline-block; width:6px; height:6px; background:#fbbf24; border-radius:50%;"></span> Apoyo de Red Activo';
+        } else {
+          statusPill.innerHTML = '<span style="display:inline-block; width:6px; height:6px; background:#10b981; border-radius:50%;"></span> 100% Autosuficiente';
+        }
+      }
+
+      checkLabAchievements();
+    }
+
+    /* ========================================================
+       PARTÍCULAS DE FOTONES
+       ======================================================== */
+    class MobilePhoton {
+      constructor(x, y, targetX, targetY) {
+        this.x = x;
+        this.y = y;
+        const angle = Math.atan2(targetY - y, targetX - x);
+        const speed = 3.5 + Math.random() * 2;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
+        this.alive = true;
+      }
+      update(cellRect) {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (
+          this.x >= cellRect.x &&
+          this.x <= cellRect.x + cellRect.w &&
+          this.y >= cellRect.y &&
+          this.y <= cellRect.y + cellRect.h
+        ) {
+          this.alive = false;
+        }
+        if (this.y > height || this.x < 0 || this.x > width) {
+          this.alive = false;
+        }
+      }
+      draw(ctx) {
+        ctx.fillStyle = '#fde047';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 2.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function animate() {
+      if (!state.isPaused && width > 0 && height > 0) {
+        const spawnLimit = state.isMobile ? 1 : 3;
+        if (state.solarDC > 50 && state.photons.length < state.maxPhotons) {
+          const rad = (state.angle * Math.PI) / 180;
+          const sunX = (width * 0.5) - Math.cos(rad) * (width * 0.42);
+          const sunY = Math.max(35, height * 0.45 - Math.sin(rad) * (height * 0.35));
+
+          const panelW = Math.min(width * 0.38, 140);
+          const panelX = width * 0.18;
+          const panelY = height * 0.52;
+
+          for (let i = 0; i < spawnLimit; i++) {
+            const tx = panelX + Math.random() * panelW;
+            const ty = panelY + Math.random() * 35;
+            state.photons.push(new MobilePhoton(sunX + (Math.random()-0.5)*15, sunY + (Math.random()-0.5)*15, tx, ty));
+          }
+        }
+
+        const panelRect = {
+          x: width * 0.12,
+          y: height * 0.48,
+          w: Math.min(width * 0.45, 160),
+          h: 45
+        };
+
+        state.photons.forEach(p => p.update(panelRect));
+        state.photons = state.photons.filter(p => p.alive);
+      }
+
+      if (width > 0 && height > 0) {
+        drawScene();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    function drawScene() {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = '#0a0f1d';
+      ctx.fillRect(0, 0, width, height);
+
+      const rad = (state.angle * Math.PI) / 180;
+      const sunX = (width * 0.5) - Math.cos(rad) * (width * 0.42);
+      const sunY = Math.max(40, height * 0.45 - Math.sin(rad) * (height * 0.35));
+
+      drawSun(sunX, sunY);
+
+      if (state.clouds > 0) {
+        drawClouds(sunX, sunY);
+      }
+
+      if (state.viewMode === 'all') {
+        drawSystemDiagram();
+      } else {
+        drawAtomicJunction();
+      }
+
+      state.photons.forEach(p => p.draw(ctx));
+    }
+
+    function drawSun(x, y) {
+      ctx.save();
+      const grad = ctx.createRadialGradient(x, y, 4, x, y, 45);
+      grad.addColorStop(0, 'rgba(251, 191, 36, 0.7)');
+      grad.addColorStop(0.6, 'rgba(245, 158, 11, 0.15)');
+      grad.addColorStop(1, 'rgba(245, 158, 11, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, 45, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.arc(x, y, 16, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#090d16';
+      ctx.font = 'bold 9px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${state.irradiance}W`, x, y + 3);
+      ctx.restore();
+    }
+
+    function drawClouds(sunX, sunY) {
+      ctx.save();
+      const alpha = (state.clouds / 100) * 0.85;
+      ctx.fillStyle = `rgba(148, 163, 184, ${alpha})`;
+      const cx = (sunX + width * 0.4) / 2;
+      const cy = (sunY + height * 0.45) / 2;
+
+      ctx.beginPath();
+      ctx.arc(cx - 24, cy, 22, 0, Math.PI * 2);
+      ctx.arc(cx, cy - 12, 30, 0, Math.PI * 2);
+      ctx.arc(cx + 26, cy, 24, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawSystemDiagram() {
+      ctx.save();
+      const isNarrow = width < 420;
+      const leftColX = isNarrow ? width * 0.18 : width * 0.22;
+      const rightColX = isNarrow ? width * 0.80 : width * 0.76;
+      const midX = width * 0.50;
+
+      const topRowY = height * 0.52;
+      const botRowY = height * 0.82;
+
+      drawNodeBox(leftColX, topRowY, isNarrow ? 76 : 90, 48, '#1e3a8a', '#3b82f6', '☀️ PANELES', `${state.solarDC} W`);
+      drawNodeBox(leftColX, botRowY, isNarrow ? 76 : 90, 46, '#142a22', '#10b981', '🔋 BATERÍA', `${state.batterySoc}% SOC`);
+      drawNodeBox(midX, topRowY + 12, isNarrow ? 80 : 96, 54, '#241a45', '#a855f7', '🔄 INVERSOR', `${state.inverterAC} W`);
+      drawNodeBox(rightColX, topRowY, isNarrow ? 74 : 88, 48, '#3c181e', '#ef4444', '🏠 HOGAR', `${state.houseLoad} W`);
+
+      const gridColor = state.gridBalance <= 0 ? '#06b6d4' : '#eab308';
+      const gridTxt = state.gridBalance <= 0 ? `-${Math.abs(state.gridBalance)}W Exp` : `+${state.gridBalance}W Imp`;
+      drawNodeBox(rightColX, botRowY, isNarrow ? 74 : 88, 46, '#112532', gridColor, '🌐 RED GRID', gridTxt);
+
+      drawFlowLine(leftColX + 38, topRowY, midX - 40, topRowY + 12, '#38bdf8', state.solarDC > 100);
+      const batActive = Math.abs(state.batteryFlow) > 50;
+      drawFlowLine(leftColX + 38, botRowY - 5, midX - 25, topRowY + 36, '#34d399', batActive);
+      drawFlowLine(midX + 40, topRowY + 12, rightColX - 37, topRowY, '#c084fc', state.inverterAC > 50);
+      const gridActive = Math.abs(state.gridBalance) > 20;
+      drawFlowLine(midX + 25, topRowY + 36, rightColX - 37, botRowY - 5, gridColor, gridActive);
+
+      ctx.restore();
+    }
+
+    function drawNodeBox(cx, cy, w, h, bg, border, title, val) {
+      const x = cx - w / 2;
+      const y = cy - h / 2;
+
+      ctx.fillStyle = bg;
+      ctx.strokeStyle = border;
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, x, y, w, h, 8, true, true);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 9.5px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText(title, cx, cy - 4);
+
+      ctx.fillStyle = border;
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText(val, cx, cy + 12);
+    }
+
+    function drawFlowLine(x1, y1, x2, y2, color, active) {
+      ctx.save();
+      ctx.strokeStyle = active ? color : '#334155';
+      ctx.lineWidth = active ? 2.5 : 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      if (active) {
+        const timeFactor = (performance.now() * 0.002) % 1;
+        const fx = x1 + (x2 - x1) * timeFactor;
+        const fy = y1 + (y2 - y1) * timeFactor;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(fx, fy, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function drawAtomicJunction() {
+      ctx.save();
+      const cx = width * 0.5;
+      const cy = height * 0.65;
+      const bw = Math.min(width * 0.85, 300);
+      const bh = 110;
+      const x = cx - bw / 2;
+      const y = cy - bh / 2;
+
+      roundRect(ctx, x, y, bw, bh, 10, true, true);
+      ctx.fillStyle = '#0f172a';
+      ctx.fill();
+
+      ctx.fillStyle = '#1e3a8a';
+      ctx.fillRect(x + 2, y + 2, bw - 4, bh / 2 - 2);
+
+      ctx.fillStyle = '#311042';
+      ctx.fillRect(x + 2, cy, bw - 4, bh / 2 - 2);
+
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.35)';
+      ctx.fillRect(x + 2, cy - 8, bw - 4, 16);
+
+      ctx.fillStyle = '#93c5fd';
+      ctx.font = 'bold 10px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('CAPA N: Silicio con Fósforo (e⁻ libres)', cx, y + 22);
+
+      ctx.fillStyle = '#67e8f9';
+      ctx.fillText('⚡ CAMPO ELÉCTRICO UNIÓN P-N', cx, cy + 3);
+
+      ctx.fillStyle = '#f472b6';
+      ctx.fillText('CAPA P: Silicio con Boro (Huecos h⁺)', cx, y + bh - 14);
+
+      ctx.restore();
+    }
+
+    function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+      if (fill) ctx.fill();
+      if (stroke) ctx.stroke();
+    }
+
+    function triggerPhotonTouch(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = clientX - rect.left;
+      const clickY = clientY - rect.top;
+
+      const rad = (state.angle * Math.PI) / 180;
+      const sunX = (width * 0.5) - Math.cos(rad) * (width * 0.42);
+      const sunY = Math.max(35, height * 0.45 - Math.sin(rad) * (height * 0.35));
+
+      const count = state.isMobile ? 6 : 12;
+      for (let i = 0; i < count; i++) {
+        state.photons.push(new MobilePhoton(
+          sunX + (Math.random() - 0.5) * 15,
+          sunY + (Math.random() - 0.5) * 15,
+          clickX + (Math.random() - 0.5) * 30,
+          clickY + (Math.random() - 0.5) * 30
+        ));
+      }
+    }
+
+    canvas.addEventListener('click', (e) => {
+      triggerPhotonTouch(e.clientX, e.clientY);
+    });
+
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length > 0) {
+        triggerPhotonTouch(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    /* ========================================================
+       VARIABLES Y PARÁMETROS
+       ======================================================== */
+    function updateParams() {
+      state.irradiance = parseInt(document.getElementById('sliderIrradiance').value);
+      state.angle = parseInt(document.getElementById('sliderAngle').value);
+      state.clouds = parseInt(document.getElementById('sliderClouds').value);
+      state.houseLoad = parseInt(document.getElementById('sliderHouseLoad').value);
+      state.batterySoc = parseInt(document.getElementById('sliderBatterySoc').value);
+
+      document.getElementById('valIrradiance').innerText = `${state.irradiance} W/m²`;
+
+      let angleTxt = `${state.angle}°`;
+      if (state.angle === 90) angleTxt += ' (Cenital)';
+      else if (state.angle < 45) angleTxt += ' (Bajo)';
+      else if (state.angle > 135) angleTxt += ' (Oeste)';
+      document.getElementById('valAngle').innerText = angleTxt;
+
+      document.getElementById('valClouds').innerText = `${state.clouds}%`;
+      document.getElementById('valHouseLoad').innerText = `${state.houseLoad} W`;
+      document.getElementById('valBatterySoc').innerText = `${state.batterySoc}%`;
+
+      recalculatePhysics();
+    }
+
+    function resetSimParams() {
+      document.getElementById('sliderIrradiance').value = 850;
+      document.getElementById('sliderAngle').value = 90;
+      document.getElementById('sliderClouds').value = 0;
+      document.getElementById('sliderHouseLoad').value = 1800;
+      document.getElementById('sliderBatterySoc').value = 68;
+      state.inverterMode = 'grid';
+      highlightModeButton('btnModeGrid');
+      updateParams();
+    }
+
+    function togglePause() {
+      state.isPaused = !state.isPaused;
+      document.getElementById('pauseBtnText').innerText = state.isPaused ? 'Reanudar' : 'Pausar';
+      document.getElementById('pauseBtnIcon').innerText = state.isPaused ? '▶' : '⏸';
+    }
+
+    function setViewMode(mode) {
+      state.viewMode = mode;
+      document.getElementById('btnModeComplete').classList.toggle('active', mode === 'all');
+      document.getElementById('btnModeAtomic').classList.toggle('active', mode === 'atomic');
+    }
+
+    function switchControlSubTab(tab) {
+      document.getElementById('tabCtrlGen').classList.toggle('active', tab === 'gen');
+      document.getElementById('tabCtrlModes').classList.toggle('active', tab === 'modes');
+      document.getElementById('tabCtrlPresets').classList.toggle('active', tab === 'presets');
+
+      document.getElementById('subTabContentGen').style.display = tab === 'gen' ? 'flex' : 'none';
+      document.getElementById('subTabContentModes').style.display = tab === 'modes' ? 'flex' : 'none';
+      document.getElementById('subTabContentPresets').style.display = tab === 'presets' ? 'flex' : 'none';
+    }
+
+    function setInverterMode(mode) {
+      state.inverterMode = mode;
+      const ids = {
+        grid: 'btnModeGrid',
+        offgrid: 'btnModeOffGrid',
+        night: 'btnModeNight',
+        surplus: 'btnModeSurplus'
+      };
+      Object.values(ids).forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('active');
+      });
+      const activeBtn = document.getElementById(ids[mode]);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (mode === 'night') {
+        document.getElementById('sliderIrradiance').value = 0;
+      }
+      updateParams();
+    }
+
+    function highlightModeButton(btnId) {
+      ['btnModeGrid', 'btnModeOffGrid', 'btnModeNight', 'btnModeSurplus'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) b.classList.remove('active');
+      });
+      const target = document.getElementById(btnId);
+      if (target) target.classList.add('active');
+    }
+
+    function applyPreset(preset) {
+      if (preset === 'noon') {
+        document.getElementById('sliderIrradiance').value = 1050;
+        document.getElementById('sliderAngle').value = 90;
+        document.getElementById('sliderClouds').value = 0;
+        document.getElementById('sliderHouseLoad').value = 1400;
+        state.inverterMode = 'surplus';
+        highlightModeButton('btnModeSurplus');
+      } else if (preset === 'overcast') {
+        document.getElementById('sliderIrradiance').value = 350;
+        document.getElementById('sliderClouds').value = 80;
+        document.getElementById('sliderHouseLoad').value = 2200;
+      } else if (preset === 'sunset') {
+        document.getElementById('sliderAngle').value = 25;
+        document.getElementById('sliderIrradiance').value = 350;
+        document.getElementById('sliderClouds').value = 10;
+      } else if (preset === 'peakLoad') {
+        document.getElementById('sliderHouseLoad').value = 4200;
+        document.getElementById('sliderIrradiance').value = 850;
+      }
+      updateParams();
+    }
+
+    /* ========================================================
+       INSPECCIÓN DE COMPONENTES
+       ======================================================== */
+    const compDetails = {
+      pn: {
+        icon: '☀️',
+        title: 'Paneles Solares: Generación DC & Unión P-N',
+        desc: 'El silicio dopado con Fósforo (Capa N) y Boro (Capa P) genera un campo eléctrico interno permanente. Cuando los fotones liberan electrones, este campo los fuerza a viajar hacia los contactos frontales en forma de Corriente Continua (DC).',
+        formula: 'Efecto Fotoeléctrico: E_fotón = h × ν ≥ Bandgap (1.1 eV)'
+      },
+      battery: {
+        icon: '🔋',
+        title: 'Batería LiFePO4: Almacenamiento Seguro',
+        desc: 'Las celdas de Litio Ferro-Fosfato acumulan excedentes diurnos. Cuentan con un BMS (Battery Management System) que monitoriza el SOC %, equilibra celdas y evita descargas profundas.',
+        formula: 'Capacidad Nominal = Amperios-hora (Ah) × Voltaje de Banco (48V / 51.2V)'
+      },
+      inverter: {
+        icon: '🔄',
+        title: 'Inversor Solar Híbrido: Onda Senoidal Pura',
+        desc: 'Convierte Corriente Continua (DC) de paneles y baterías en Corriente Alterna (AC 230V/120V) sincronizada en fase y frecuencia con la red pública. Su algoritmo MPPT maximiza la potencia extraída en tiempo real.',
+        formula: 'Eficiencia = Potencia AC Salida ÷ Potencia DC Entrada (~97%)'
+      },
+      grid: {
+        icon: '🏠',
+        title: 'Hogar y Red Eléctrica Pública (Net Metering)',
+        desc: 'Las cargas residenciales consumen en AC. Cuando el sistema solar excede el consumo, el inversor inyecta a la red comercial generando compensación económica o acumulación en monedero virtual.',
+        formula: 'Balance de Red = Demanda Hogar - Potencia Inversor AC'
+      }
+    };
+
+    function selectComponent(comp) {
+      document.querySelectorAll('.comp-card').forEach(c => c.classList.remove('active-comp'));
+      const active = document.getElementById('card-' + comp);
+      if (active) active.classList.add('active-comp');
+
+      const data = compDetails[comp];
+      if (data) {
+        document.getElementById('detailIcon').innerText = data.icon;
+        document.getElementById('detailTitle').innerText = data.title;
+        document.getElementById('detailDesc').innerHTML = data.desc;
+        document.getElementById('detailFormula').innerText = data.formula;
+      }
+    }
+
+    /* ========================================================
+       NAVEGACIÓN ENTRE PESTAÑAS (EXPLORAR, RETOS, QUIZ, GLOSARIO)
+       ======================================================== */
+    function switchTab(tab) {
+      const allTabs = ['explore', 'lab', 'quiz', 'glossary'];
+      allTabs.forEach(t => {
+        const btn = document.getElementById('nav-btn-' + t);
+        const panel = document.getElementById('view-' + t);
+        if (btn) btn.classList.toggle('active', t === tab);
+        if (panel) {
+          if (t === tab) {
+            panel.classList.add('active');
+            panel.style.display = 'flex';
+          } else {
+            panel.classList.remove('active');
+            panel.style.display = 'none';
+          }
+        }
+      });
+
+      const icon = document.getElementById('bannerIcon');
+      const title = document.getElementById('bannerTitle');
+      const desc = document.getElementById('bannerDesc');
+      const nextBtn = document.getElementById('bannerNextStepBtn');
+      const pauseBtn = document.getElementById('bannerPauseBtn');
+
+      if (tab === 'explore') {
+        if (icon) icon.innerText = '☀️';
+        if (title) title.innerText = 'Fase 1: Simulación en Vivo';
+        if (desc) desc.innerText = 'Toca el cielo para fotones. Ajusta los controles de radiación y demanda para observar la interacción de paneles, batería e inversor.';
+        if (nextBtn) {
+          nextBtn.innerText = 'Ir a Retos ➔';
+          nextBtn.onclick = () => switchTab('lab');
+        }
+        if (pauseBtn) pauseBtn.style.display = 'inline-flex';
+        // Forzar resize para que el canvas se adapte perfectamente
+        setTimeout(resizeCanvas, 50);
+      } else if (tab === 'lab') {
+        if (icon) icon.innerText = '🧪';
+        if (title) title.innerText = 'Fase 2: Retos y Experimentos';
+        if (desc) desc.innerText = 'Resuelve los 4 retos prácticos manipulando el simulador para descubrir las leyes de autoconsumo y balance energético.';
+        if (nextBtn) {
+          nextBtn.innerText = 'Ir al Quiz ➔';
+          nextBtn.onclick = () => switchTab('quiz');
+        }
+        if (pauseBtn) pauseBtn.style.display = 'none';
+      } else if (tab === 'quiz') {
+        if (icon) icon.innerText = '📝';
+        if (title) title.innerText = 'Fase 3: Quiz de Comprensión';
+        if (desc) desc.innerText = 'Evalúa tus conocimientos técnicos con preguntas adaptativas basadas en la física observada.';
+        if (nextBtn) {
+          nextBtn.innerText = 'Ir a Glosario ➔';
+          nextBtn.onclick = () => switchTab('glossary');
+        }
+        if (pauseBtn) pauseBtn.style.display = 'none';
+      } else if (tab === 'glossary') {
+        if (icon) icon.innerText = '📖';
+        if (title) title.innerText = 'Fase 4: Glosario de Conceptos Clave';
+        if (desc) desc.innerText = 'Explora la lista completa de términos explicados sin tecnicismos difíciles, con analogías de la vida real y buscador instantáneo.';
+        if (nextBtn) {
+          nextBtn.innerText = 'Volver a Simular ➔';
+          nextBtn.onclick = () => switchTab('explore');
+        }
+        if (pauseBtn) pauseBtn.style.display = 'none';
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ========================================================
+       FILTRO Y BÚSQUEDA DEL GLOSARIO EN TIEMPO REAL
+       ======================================================== */
+    function setGlossaryCat(cat) {
+      state.glossaryCategory = cat;
+      ['all', 'light', 'equip', 'power'].forEach(c => {
+        const btn = document.getElementById('filter-' + c);
+        if (btn) btn.classList.toggle('active', c === cat);
+      });
+      filterGlossary();
+    }
+
+    function filterGlossary() {
+      const searchInput = document.getElementById('glossarySearch');
+      const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+      const cards = document.querySelectorAll('.glossary-card');
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const cat = card.getAttribute('data-cat');
+        const text = card.innerText.toLowerCase();
+
+        const matchCat = (state.glossaryCategory === 'all' || cat === state.glossaryCategory);
+        const matchQuery = !query || text.includes(query);
+
+        if (matchCat && matchQuery) {
+          card.style.display = 'flex';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      const badge = document.getElementById('glossaryCountBadge');
+      if (badge) {
+        badge.innerText = `${visibleCount} de 15 Términos`;
+      }
+    }
+
+    /* ========================================================
+       RETOS Y LABORATORIO GUIADO
+       ======================================================== */
+    function checkLabAchievements() {
+      if (state.batterySoc >= 95 && state.solarDC > 2200 && state.houseLoad < 1500) {
+        completeTask(1);
+      }
+      if (state.inverterMode === 'offgrid' && state.solarDC === 0 && state.batteryFlow < -800) {
+        completeTask(2);
+      }
+    }
+
+    function completeTask(num) {
+      state.tasks['t' + num] = true;
+      const card = document.getElementById('task' + num);
+      const badge = document.getElementById('task' + num + '-badge');
+      const result = document.getElementById('task' + num + '-result');
+      if (card && badge && result) {
+        card.classList.add('completed');
+        badge.classList.add('done');
+        badge.innerText = '✓ ¡Descubierto!';
+        result.style.display = 'block';
+      }
+    }
+
+    function testSurplusExperiment() {
+      document.getElementById('sliderIrradiance').value = 1000;
+      document.getElementById('sliderBatterySoc').value = 100;
+      document.getElementById('sliderHouseLoad').value = 800;
+      setInverterMode('surplus');
+      updateParams();
+      completeTask(1);
+    }
+
+    function testNightExperiment() {
+      document.getElementById('sliderIrradiance').value = 0;
+      document.getElementById('sliderBatterySoc').value = 75;
+      document.getElementById('sliderHouseLoad').value = 1600;
+      setInverterMode('offgrid');
+      updateParams();
+      completeTask(2);
+    }
+
+    function testInverterEfficiency() {
+      document.getElementById('sliderIrradiance').value = 1000;
+      document.getElementById('sliderHouseLoad').value = 3000;
+      updateParams();
+      completeTask(3);
+    }
+
+    function testPeakZeroImport() {
+      document.getElementById('sliderIrradiance').value = 950;
+      document.getElementById('sliderBatterySoc').value = 85;
+      document.getElementById('sliderHouseLoad').value = 4500;
+      setInverterMode('grid');
+      updateParams();
+      completeTask(4);
+    }
+
+    /* ========================================================
+       QUIZ DE EVALUACIÓN
+       ======================================================== */
+    const quizQuestions = [
+      {
+        question: '1. ¿Qué función cumple el campo eléctrico en la unión P-N de la celda fotovoltaica?',
+        options: [
+          'Frena a los fotones y los disuelve en calor.',
+          'Actúa como válvula unidireccional que separa electrones hacia la capa N y huecos hacia la capa P.',
+          'Transforma la corriente continua (DC) directamente en corriente alterna (AC).',
+          'Almacena energía química como si fuera una batería.'
+        ],
+        correct: 1,
+        feedback: '¡Exacto! El campo eléctrico interno separa las cargas fotogeneradas e impide que retrocedan internamente, obligándolas a circular por el cable exterior.'
+      },
+      {
+        question: '2. En una instalación residencial conectada a la red (On-Grid), ¿qué ocurre cuando la batería está al 100% y los paneles producen más de lo que la casa consume?',
+        options: [
+          'Los paneles se apagan automáticamente y se dañan.',
+          'El inversor inyecta el excedente de energía a la red pública comercial.',
+          'La batería explota por exceso de energía.',
+          'El consumo de la casa sube al triple obligatoriamente.'
+        ],
+        correct: 1,
+        feedback: '¡Correcto! Es el principio del autoconsumo con compensación de excedentes: la red eléctrica absorbe la energía limpia sobrante.'
+      },
+      {
+        question: '3. ¿Por qué es indispensable un Inversor Solar en una vivienda común?',
+        options: [
+          'Porque los paneles entregan corriente continua (DC) y los electrodomésticos utilizan corriente alterna (AC).',
+          'Porque enfría los paneles solares para que no se quemen.',
+          'Porque reemplaza al contador de la empresa eléctrica.',
+          'Porque produce luz solar artificial durante la noche.'
+        ],
+        correct: 0,
+        feedback: '¡Así es! Paneles y baterías operan en Corriente Continua (DC), mientras que la red y el hogar demandan Corriente Alterna (AC) senoidal pura (230V / 120V).'
+      },
+      {
+        question: '4. Si el sol incide en un ángulo muy rasante (20° en amanecer/atardecer), ¿por qué se reduce drásticamente la potencia?',
+        options: [
+          'Porque la misma energía solar se distribuye sobre un área geométrica mucho mayor (menor irradiancia efectiva).',
+          'Porque los electrones se vuelven más pesados por la mañana.',
+          'Porque el silicio se vuelve aislante con luz oblicua.',
+          'Porque la batería bloquea la entrada del inversor.'
+        ],
+        correct: 0,
+        feedback: '¡Perfecto! Es la Ley del Coseno de Lambert: la perpendicularidad concentra la máxima densidad de fotones por centímetro cuadrado.'
+      },
+      {
+        question: '5. ¿Qué representa la métrica SOC (State of Charge) en la batería LiFePO4?',
+        options: [
+          'La temperatura máxima que soporta el silicio.',
+          'El porcentaje de carga eléctrica disponible respecto a su capacidad total.',
+          'La velocidad de los fotones en el vacío.',
+          'El precio del vatio-hora en el mercado mayorista.'
+        ],
+        correct: 1,
+        feedback: '¡Totalmente acertado! El SOC (0% a 100%) indica la cantidad de energía almacenada en el acumulador para gestionar la autonomía del hogar.'
+      }
+    ];
+
+    function renderQuestion() {
+      state.quizAnswered = false;
+      const q = quizQuestions[state.quizCurrentIndex];
+
+      const counter = document.getElementById('quizCounter');
+      const bar = document.getElementById('quizProgressBar');
+      const title = document.getElementById('quizQuestion');
+
+      if (counter) counter.innerText = `Pregunta ${state.quizCurrentIndex + 1} de ${quizQuestions.length}`;
+      if (bar) bar.style.width = `${((state.quizCurrentIndex) / quizQuestions.length) * 100}%`;
+      if (title) title.innerText = q.question;
+
+      const optContainer = document.getElementById('quizOptions');
+      if (optContainer) {
+        optContainer.innerHTML = '';
+        q.options.forEach((optText, idx) => {
+          const btn = document.createElement('button');
+          btn.className = 'answer-opt';
+          btn.innerHTML = `<span style="font-weight:700; width:22px; height:22px; border-radius:50%; background:rgba(255,255,255,0.1); display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">${String.fromCharCode(65 + idx)}</span> <span>${optText}</span>`;
+          btn.onclick = () => selectQuizAnswer(idx);
+          optContainer.appendChild(btn);
+        });
+      }
+
+      const feedback = document.getElementById('quizFeedback');
+      if (feedback) {
+        feedback.className = 'feedback-box';
+        feedback.innerText = '';
+      }
+      const nextBtn = document.getElementById('btnNextQuiz');
+      if (nextBtn) nextBtn.style.display = 'none';
+    }
+
+    function selectQuizAnswer(idx) {
+      if (state.quizAnswered) return;
+      state.quizAnswered = true;
+
+      const q = quizQuestions[state.quizCurrentIndex];
+      const buttons = document.querySelectorAll('.answer-opt');
+      const feedback = document.getElementById('quizFeedback');
+
+      if (idx === q.correct) {
+        state.quizScore++;
+        buttons[idx].classList.add('correct');
+        feedback.className = 'feedback-box show correct';
+        feedback.innerHTML = `<strong>✓ ¡Correcto!</strong> ${q.feedback}`;
+      } else {
+        buttons[idx].classList.add('wrong');
+        buttons[q.correct].classList.add('correct');
+        feedback.className = 'feedback-box show wrong';
+        feedback.innerHTML = `<strong>✕ No exactamente.</strong> ${q.feedback}`;
+      }
+
+      document.getElementById('btnNextQuiz').style.display = 'block';
+    }
+
+    function nextQuestion() {
+      state.quizCurrentIndex++;
+      if (state.quizCurrentIndex < quizQuestions.length) {
+        renderQuestion();
+      } else {
+        showQuizResults();
+      }
+    }
+
+    function showQuizResults() {
+      document.getElementById('quizProgressBar').style.width = '100%';
+      const container = document.getElementById('quizContainer');
+      const pct = Math.round((state.quizScore / quizQuestions.length) * 100);
+
+      container.innerHTML = `
+        <div style="text-align:center; padding:1.2rem 0.5rem;">
+          <div style="width:85px; height:85px; border-radius:50%; background:radial-gradient(circle, var(--accent-cyan) 0%, #0891b2 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0 auto 1rem auto; box-shadow:0 0 20px rgba(6,182,212,0.4); color:white;">
+            <span style="font-size:1.8rem; font-weight:800; line-height:1;">${state.quizScore}/${quizQuestions.length}</span>
+            <span style="font-size:0.65rem; text-transform:uppercase;">${pct}% Acierto</span>
+          </div>
+          <h2 style="font-size:1.25rem; margin-bottom:0.5rem;">¡Evaluación Completada!</h2>
+          <p style="color:var(--text-muted); font-size:0.85rem; line-height:1.45; margin-bottom:1.2rem;">
+            ${pct >= 80 ? '¡Excelente maestría! Comprendes con solidez el efecto fotoeléctrico, la conversión DC/AC y el balance energético residencial.' : '¡Buen esfuerzo! Puedes consultar el Glosario y volver a simular para reforzar los conceptos.'}
+          </p>
+          <div style="display:flex; flex-direction:column; gap:0.5rem;">
+            <button class="action-btn primary" onclick="restartQuiz()">↺ Repetir Quiz</button>
+            <button class="action-btn" onclick="switchTab('glossary')">📖 Repasar Glosario</button>
+            <button class="action-btn" onclick="switchTab('explore')">Volver a la Simulación</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function restartQuiz() {
+      state.quizCurrentIndex = 0;
+      state.quizScore = 0;
+      const container = document.getElementById('quizContainer');
+      container.innerHTML = `
+        <div class="quiz-progress">
+          <div class="quiz-progress-bar" id="quizProgressBar"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <span id="quizCounter" style="font-size:0.74rem; font-weight:700; color:var(--accent-blue); text-transform:uppercase;">Pregunta 1 de 5</span>
+          <span style="font-size:0.72rem; color:var(--text-muted);">Evaluación Interactiva</span>
+        </div>
+        <h2 class="question-title" id="quizQuestion"></h2>
+        <div class="answers-list" id="quizOptions"></div>
+        <div class="feedback-box" id="quizFeedback"></div>
+        <button class="action-btn primary" id="btnNextQuiz" onclick="nextQuestion()" style="display:none; width:100%; min-height:44px; margin-top:0.4rem;">
+          Siguiente Pregunta ➔
+        </button>
+      `;
+      renderQuestion();
+    }
+
+    /* ========================================================
+       INICIALIZACIÓN AL CARGAR LA PÁGINA
+       ======================================================== */
+    window.addEventListener('load', () => {
+      resizeCanvas();
+      recalculatePhysics();
+      renderQuestion();
+      requestAnimationFrame(animate);
+    });
+</script>
+</body></html>
